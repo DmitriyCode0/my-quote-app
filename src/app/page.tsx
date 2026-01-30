@@ -10,6 +10,8 @@ import {
   ChevronRight,
   Share2,
   Calendar,
+  Copy,
+  Check,
 } from "lucide-react";
 import { quotes } from "@/lib/quotes";
 
@@ -18,6 +20,10 @@ export default function Home() {
   const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
   const dailyIndex = daysSinceEpoch % quotes.length;
   const [currentIndex, setCurrentIndex] = useState(dailyIndex);
+
+  // --- NEW: COPIED STATE ---
+  // This remembers if we just clicked the copy button
+  const [isCopied, setIsCopied] = useState(false);
 
   const nextQuote = () => {
     setCurrentIndex((prev) => (prev + 1) % quotes.length);
@@ -29,6 +35,24 @@ export default function Home() {
 
   const goToToday = () => {
     setCurrentIndex(dailyIndex);
+    setIsCopied(false);
+  };
+
+  // --- NEW: COPY FUNCTION ---
+  const handleCopy = () => {
+    // 1. Prepare the text
+    const textToCopy = `"${quotes[currentIndex].text}" — ${quotes[currentIndex].author}`;
+
+    // 2. Write to clipboard
+    navigator.clipboard.writeText(textToCopy);
+
+    // 3. Show the "Check" icon
+    setIsCopied(true);
+
+    // 4. Hide it after 2 seconds
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
   };
 
   return (
@@ -113,6 +137,20 @@ export default function Home() {
                 <Share2 className="h-5 w-5" />
               </Button>
             )}
+            {/* Middle Action: COPY BUTTON */}
+            <Button
+              onClick={handleCopy}
+              size="icon"
+              className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none transition-all"
+              title="Copy to Clipboard"
+            >
+              {/* Logic: Show Check if copied, otherwise show Copy icon */}
+              {isCopied ? (
+                <Check className="h-5 w-5 text-green-500" />
+              ) : (
+                <Copy className="h-5 w-5" />
+              )}
+            </Button>
             <Button
               onClick={nextQuote}
               variant="outline"

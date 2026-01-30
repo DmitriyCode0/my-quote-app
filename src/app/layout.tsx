@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Libre_Baskerville } from "next/font/google"; // <--- Import the new font
 import "./globals.css";
+import type { Viewport } from "next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -11,9 +12,23 @@ const serif = Libre_Baskerville({
   variable: "--font-serif", // We give it a name to use later
 });
 
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false, // Makes it feel like an app, not a website
+};
+
 export const metadata: Metadata = {
   title: "Quotes",
   description: "Daily wisdom",
+  manifest: "/manifest.json", // <--- ADD THIS LINE
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Quotes",
+  },
 };
 
 export default function RootLayout({
