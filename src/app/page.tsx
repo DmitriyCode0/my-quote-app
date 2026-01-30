@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,9 +24,6 @@ export default function Home() {
   };
 
   return (
-    // 3. THE UI (Visuals)
-    // 'min-h-screen' makes it take up the whole phone screen
-    // 'bg-black' makes it dark mode
     <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 p-4 text-white">
       {/* Top Bar with Menu */}
       <div className="absolute top-4 left-4">
@@ -40,7 +38,18 @@ export default function Home() {
             className="bg-zinc-900 border-zinc-800 text-white"
           >
             <div className="mt-8 flex flex-col gap-4">
-              <h2 className="text-xl font-bold">Stoic Quotes</h2>
+              <div className="flex flex-col gap-6 mb-2">
+                {/* The Logo */}
+                <div className="flex items-center gap-3">
+                  <Image
+                    src="/logo.png"
+                    alt="App Logo"
+                    width={75}
+                    height={75}
+                    className="rounded-xl" /* Optional: adds rounded corners */
+                  />
+                </div>
+              </div>
               <p>Home</p>
               <p>Favorites</p>
               <p>Settings</p>
@@ -67,7 +76,7 @@ export default function Home() {
               onClick={prevQuote}
               variant="outline"
               size="icon"
-              className="rounded-full border-zinc-700 bg-transparent hover:bg-zinc-800"
+              className="h-12 w-12 rounded-full bg-orange-600 hover:bg-orange-700 text-white border-none"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -75,7 +84,7 @@ export default function Home() {
               onClick={nextQuote}
               variant="outline"
               size="icon"
-              className="rounded-full border-zinc-700 bg-transparent hover:bg-zinc-800"
+              className="h-12 w-12 rounded-full bg-orange-600 hover:bg-orange-700 text-white border-none"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
