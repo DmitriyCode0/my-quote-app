@@ -1,26 +1,34 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Menu,
+  ChevronLeft,
+  ChevronRight,
+  Share2,
+  Calendar,
+} from "lucide-react";
 import { quotes } from "@/lib/quotes";
 
 export default function Home() {
-  // 2. THE LOGIC (State)
-  // We start at index 0 (the first quote)
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const today = new Date();
+  const daysSinceEpoch = Math.floor(today.getTime() / (1000 * 60 * 60 * 24));
+  const dailyIndex = daysSinceEpoch % quotes.length;
+  const [currentIndex, setCurrentIndex] = useState(dailyIndex);
 
-  // Function to go to the next quote
   const nextQuote = () => {
     setCurrentIndex((prev) => (prev + 1) % quotes.length);
   };
 
-  // Function to go to the previous quote
   const prevQuote = () => {
     setCurrentIndex((prev) => (prev - 1 + quotes.length) % quotes.length);
+  };
+
+  const goToToday = () => {
+    setCurrentIndex(dailyIndex);
   };
 
   return (
@@ -49,10 +57,17 @@ export default function Home() {
                     className="rounded-xl" /* Optional: adds rounded corners */
                   />
                 </div>
+                {/* Navigation Items */}
+                <nav className="flex flex-col gap-4 text-zinc-400 mt-4">
+                  <p
+                    onClick={goToToday}
+                    className="hover:text-white cursor-pointer flex items-center gap-2"
+                  >
+                    <Calendar className="h-4 w-4" /> Today's Quote
+                  </p>
+                  <p className="hover:text-white cursor-pointer">Favorites</p>
+                </nav>
               </div>
-              <p>Home</p>
-              <p>Favorites</p>
-              <p>Settings</p>
             </div>
           </SheetContent>
         </Sheet>
@@ -80,6 +95,24 @@ export default function Home() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
+            {/* "Today" Button indicator (only shows if not on daily quote) */}
+            {currentIndex !== dailyIndex ? (
+              <Button
+                onClick={goToToday}
+                size="icon"
+                className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none"
+                title="Back to Today"
+              >
+                <Calendar className="h-5 w-5" />
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none cursor-default"
+              >
+                <Share2 className="h-5 w-5" />
+              </Button>
+            )}
             <Button
               onClick={nextQuote}
               variant="outline"
