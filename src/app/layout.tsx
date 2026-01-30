@@ -12,7 +12,7 @@ const serif = Libre_Baskerville({
 });
 
 export const metadata: Metadata = {
-  title: "Stoic Quotes",
+  title: "Quotes",
   description: "Daily wisdom",
 };
 
