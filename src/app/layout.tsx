@@ -23,12 +23,6 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Quotes",
   description: "Daily wisdom",
-  manifest: "/manifest.json", // <--- ADD THIS LINE
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "black-translucent",
-    title: "Quotes",
-  },
 };
 
 export default function RootLayout({
