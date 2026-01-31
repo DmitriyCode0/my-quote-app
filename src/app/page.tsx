@@ -67,8 +67,9 @@ export default function Home() {
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="bg-zinc-900 border-zinc-800 text-white"
+            className="bg-zinc-950 border-zinc-800 text-white flex flex-col items-center text-center"
           >
+            {" "}
             <div className="mt-8 flex flex-col gap-4">
               <div className="flex flex-col gap-6 mb-2">
                 {/* The Logo */}
