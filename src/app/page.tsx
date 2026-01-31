@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -12,6 +13,7 @@ import {
   Calendar,
   Copy,
   Check,
+  Heart,
 } from "lucide-react";
 import { quotes } from "@/lib/quotes";
 
@@ -24,6 +26,35 @@ export default function Home() {
   // --- NEW: COPIED STATE ---
   // This remembers if we just clicked the copy button
   const [isCopied, setIsCopied] = useState(false);
+  const [favorites, setFavorites] = useState<string[]>([]); // We store the TEXT of the quotes
+
+  // 1. Load favorites from phone memory when app starts
+  useEffect(() => {
+    const saved = localStorage.getItem("favorites");
+    if (saved) {
+      setFavorites(JSON.parse(saved));
+    }
+  }, []);
+
+  // 2. Check if current quote is liked
+  const isLiked = favorites.includes(quotes[currentIndex].text);
+
+  // 3. Function to toggle like
+  const toggleFavorite = () => {
+    let newFavorites;
+    const currentText = quotes[currentIndex].text;
+
+    if (isLiked) {
+      // Remove it
+      newFavorites = favorites.filter((text) => text !== currentText);
+    } else {
+      // Add it
+      newFavorites = [...favorites, currentText];
+    }
+
+    setFavorites(newFavorites);
+    localStorage.setItem("favorites", JSON.stringify(newFavorites));
+  };
 
   const nextQuote = () => {
     setCurrentIndex((prev) => (prev + 1) % quotes.length);
@@ -99,12 +130,12 @@ export default function Home() {
                   >
                     <Calendar className="h-4 w-4" /> Today's Quote
                   </p>
-                  <div
-                    onClick={handleMenuClick}
-                    className="hover:text-white cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900"
-                  >
-                    Favorites
-                  </div>
+                  <Link href="/favorites" onClick={() => setIsMenuOpen(false)}>
+                    <div className="hover:text-white cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900 flex items-center gap-3">
+                      <Heart className="h-5 w-5" />
+                      <span>Favorites</span>
+                    </div>
+                  </Link>
 
                   <div
                     onClick={handleMenuClick}
@@ -142,24 +173,18 @@ export default function Home() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            {/* "Today" Button indicator (only shows if not on daily quote) */}
-            {currentIndex !== dailyIndex ? (
-              <Button
-                onClick={goToToday}
-                size="icon"
-                className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none"
-                title="Back to Today"
-              >
-                <Calendar className="h-5 w-5" />
-              </Button>
-            ) : (
-              <Button
-                size="icon"
-                className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none cursor-default"
-              >
-                <Share2 className="h-5 w-5" />
-              </Button>
-            )}
+
+            {/* Middle Action: FAVORITE BUTTON */}
+            <Button
+              onClick={toggleFavorite}
+              size="icon"
+              className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none transition-all"
+            >
+              <Heart
+                className={`h-6 w-6 transition-all ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
+              />
+            </Button>
+
             {/* Middle Action: COPY BUTTON */}
             <Button
               onClick={handleCopy}
