@@ -37,6 +37,12 @@ export default function Home() {
     setCurrentIndex(dailyIndex);
     setIsCopied(false);
   };
+  // --- NEW: MENU STATE (To close it automatically) ---
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // --- NEW: Helper to close menu on generic clicks ---
+  const handleMenuClick = () => {
+    setIsMenuOpen(false);
+  };
 
   // --- NEW: COPY FUNCTION ---
   const handleCopy = () => {
@@ -59,7 +65,7 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 p-4 text-white">
       {/* Top Bar with Menu */}
       <div className="absolute top-4 left-4">
-        <Sheet>
+        <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
               <Menu className="h-6 w-6" />
@@ -85,11 +91,27 @@ export default function Home() {
                 {/* Navigation Items */}
                 <nav className="flex flex-col gap-4 text-zinc-400 mt-4">
                   <p
-                    onClick={goToToday}
+                    onClick={() => {
+                      goToToday();
+                      handleMenuClick();
+                    }}
                     className="hover:text-white cursor-pointer flex items-center gap-2"
                   >
                     <Calendar className="h-4 w-4" /> Today's Quote
                   </p>
+                  <div
+                    onClick={handleMenuClick}
+                    className="hover:text-white cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900"
+                  >
+                    Favorites
+                  </div>
+
+                  <div
+                    onClick={handleMenuClick}
+                    className="hover:text-white cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900"
+                  >
+                    About
+                  </div>
                   <p className="hover:text-white cursor-pointer">Favorites</p>
                 </nav>
               </div>
