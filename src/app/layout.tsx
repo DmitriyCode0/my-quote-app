@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Libre_Baskerville } from "next/font/google"; // <--- Import the new font
 import "./globals.css";
 import type { Viewport } from "next";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,9 +32,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* We add the variable here so we can use it anywhere */}
-      <body className={`${inter.className} ${serif.variable}`}>{children}</body>
+      <body className={`${inter.className} ${serif.variable}`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

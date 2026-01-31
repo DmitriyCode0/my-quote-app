@@ -1,9 +1,18 @@
 "use client";
+import * as React from "react";
+
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   Menu,
@@ -14,8 +23,39 @@ import {
   Copy,
   Check,
   Heart,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { useTheme } from "next-themes";
+
 import { quotes } from "@/lib/quotes";
+import { useFavorites } from "@/hooks/use-favorites";
+
+export function ModeToggle() {
+  const { setTheme } = useTheme();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export default function Home() {
   const today = new Date();
@@ -23,38 +63,9 @@ export default function Home() {
   const dailyIndex = daysSinceEpoch % quotes.length;
   const [currentIndex, setCurrentIndex] = useState(dailyIndex);
 
-  // --- NEW: COPIED STATE ---
-  // This remembers if we just clicked the copy button
   const [isCopied, setIsCopied] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>([]); // We store the TEXT of the quotes
-
-  // 1. Load favorites from phone memory when app starts
-  useEffect(() => {
-    const saved = localStorage.getItem("favorites");
-    if (saved) {
-      setFavorites(JSON.parse(saved));
-    }
-  }, []);
-
-  // 2. Check if current quote is liked
+  const { favorites, toggleFavorite } = useFavorites();
   const isLiked = favorites.includes(quotes[currentIndex].text);
-
-  // 3. Function to toggle like
-  const toggleFavorite = () => {
-    let newFavorites;
-    const currentText = quotes[currentIndex].text;
-
-    if (isLiked) {
-      // Remove it
-      newFavorites = favorites.filter((text) => text !== currentText);
-    } else {
-      // Add it
-      newFavorites = [...favorites, currentText];
-    }
-
-    setFavorites(newFavorites);
-    localStorage.setItem("favorites", JSON.stringify(newFavorites));
-  };
 
   const nextQuote = () => {
     setCurrentIndex((prev) => (prev + 1) % quotes.length);
@@ -68,34 +79,25 @@ export default function Home() {
     setCurrentIndex(dailyIndex);
     setIsCopied(false);
   };
-  // --- NEW: MENU STATE (To close it automatically) ---
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  // --- NEW: Helper to close menu on generic clicks ---
   const handleMenuClick = () => {
     setIsMenuOpen(false);
   };
 
-  // --- NEW: COPY FUNCTION ---
   const handleCopy = () => {
-    // 1. Prepare the text
     const textToCopy = `"${quotes[currentIndex].text}" — ${quotes[currentIndex].author}`;
-
-    // 2. Write to clipboard
     navigator.clipboard.writeText(textToCopy);
-
-    // 3. Show the "Check" icon
     setIsCopied(true);
-
-    // 4. Hide it after 2 seconds
     setTimeout(() => {
       setIsCopied(false);
     }, 2000);
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 p-4 text-white">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground">
       {/* Top Bar with Menu */}
-      <div className="absolute top-4 left-4">
+      <div className="absolute top-0 left-0 w-full p-4 flex justify-between items-center">
+        {" "}
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -104,7 +106,7 @@ export default function Home() {
           </SheetTrigger>
           <SheetContent
             side="left"
-            className="bg-zinc-950 border-zinc-800 text-white flex flex-col items-center text-center"
+            className="bg-background border-border text-foreground flex flex-col items-center text-center"
           >
             {" "}
             <div className="mt-8 flex flex-col gap-4">
@@ -116,22 +118,22 @@ export default function Home() {
                     alt="App Logo"
                     width={75}
                     height={75}
-                    className="rounded-xl" /* Optional: adds rounded corners */
+                    className="rounded-xl"
                   />
                 </div>
                 {/* Navigation Items */}
-                <nav className="flex flex-col gap-4 text-zinc-400 mt-4">
+                <nav className="flex flex-col gap-4 text-muted-foreground mt-4">
                   <p
                     onClick={() => {
                       goToToday();
                       handleMenuClick();
                     }}
-                    className="hover:text-white cursor-pointer flex items-center gap-2"
+                    className="hover:text-foreground cursor-pointer flex items-center gap-2"
                   >
                     <Calendar className="h-4 w-4" /> Today's Quote
                   </p>
                   <Link href="/favorites" onClick={() => setIsMenuOpen(false)}>
-                    <div className="hover:text-white cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900 flex items-center gap-3">
+                    <div className="hover:text-foreground cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-accent flex items-center gap-3">
                       <Heart className="h-5 w-5" />
                       <span>Favorites</span>
                     </div>
@@ -139,26 +141,31 @@ export default function Home() {
 
                   <div
                     onClick={handleMenuClick}
-                    className="hover:text-white cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-zinc-900"
+                    className="hover:text-foreground cursor-pointer transition-colors px-4 py-2 rounded-lg hover:bg-accent"
                   >
                     About
                   </div>
-                  <p className="hover:text-white cursor-pointer">Favorites</p>
+                  <p className="hover:text-foreground cursor-pointer">
+                    Favorites
+                  </p>
                 </nav>
               </div>
             </div>
           </SheetContent>
         </Sheet>
+        <ModeToggle />
       </div>
 
       {/* The Quote Card */}
-      <Card className="w-full max-w-md border-zinc-800 bg-zinc-900 text-zinc-100 shadow-xl">
+      <Card className="w-full max-w-md border-border bg-card text-card-foreground shadow-xl">
+        {" "}
         <CardContent className="flex flex-col gap-6 p-8 text-center">
           <div className="space-y-4">
             <p className="text-2xl font-light leading-relaxed">
               "{quotes[currentIndex].text}"
             </p>
-            <p className="text-sm font-semibold text-zinc-400 uppercase tracking-widest">
+            <p className="text-sm font-semibold text-muted-foreground uppercase tracking-widest">
+              {" "}
               — {quotes[currentIndex].author}
             </p>
           </div>
@@ -169,19 +176,19 @@ export default function Home() {
               onClick={prevQuote}
               variant="outline"
               size="icon"
-              className="h-12 w-12 rounded-full bg-orange-600 hover:bg-orange-700 text-white border-none"
+              className="h-12 w-12 rounded-full border-input bg-background hover:bg-accent hover:text-accent-foreground"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
 
             {/* Middle Action: FAVORITE BUTTON */}
             <Button
-              onClick={toggleFavorite}
+              onClick={() => toggleFavorite(quotes[currentIndex].text)}
               size="icon"
-              className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none transition-all"
+              className="h-12 w-12 rounded-full border-input bg-background hover:bg-accent hover:text-accent-foreground border transition-all"
             >
               <Heart
-                className={`h-6 w-6 transition-all ${isLiked ? "fill-red-500 text-red-500" : "text-white"}`}
+                className={`h-6 w-6 transition-all ${isLiked ? "fill-red-500 text-red-500" : "text-foreground"}`}
               />
             </Button>
 
@@ -189,10 +196,9 @@ export default function Home() {
             <Button
               onClick={handleCopy}
               size="icon"
-              className="h-12 w-12 rounded-full bg-zinc-800 hover:bg-zinc-700 text-white border-none transition-all"
+              className="h-12 w-12 rounded-full border-input bg-background text-foreground hover:bg-accent hover:text-accent-foreground border transition-all"
               title="Copy to Clipboard"
             >
-              {/* Logic: Show Check if copied, otherwise show Copy icon */}
               {isCopied ? (
                 <Check className="h-5 w-5 text-green-500" />
               ) : (
@@ -203,7 +209,7 @@ export default function Home() {
               onClick={nextQuote}
               variant="outline"
               size="icon"
-              className="h-12 w-12 rounded-full bg-orange-600 hover:bg-orange-700 text-white border-none"
+              className="h-12 w-12 rounded-full border-input bg-background hover:bg-accent hover:text-accent-foreground"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
